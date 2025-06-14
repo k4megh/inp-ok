@@ -3,7 +3,7 @@ package ru.otus.otuskotlin.marketplace
 //TIP Чтобы запустить код, нажмите <shortcut actionId="Run"/> или
 // щёлкните значок <icon src="AllIcons.Actions.Execute"/> на полях.
 fun main() {
-    val name = "Kotlin"
+    val name = "Kotlin main"
     //TIP Наведите курсор на подсвеченный текст и нажмите <shortcut actionId="ShowIntentionActions"/>
     // чтобы увидеть, как GIGA IDE предлагает это исправить.
     println("Hello, $name!")
