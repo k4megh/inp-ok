@@ -4,7 +4,7 @@ import kotlin.test.assertEquals
 class KotlinTest {
     @Test
     fun firstTest() {
-        assertEquals(3, 2 * 2)
+        assertEquals(4, 2 * 2)
     }
 
 
