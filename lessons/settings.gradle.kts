@@ -10,9 +10,5 @@ pluginManagement{
     }
 
 }
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "inp-ok"
-includeBuild("lessons")
-includeBuild("ok-geoworktracker-be")
+rootProject.name = "lessons"
+include("m1-init")
