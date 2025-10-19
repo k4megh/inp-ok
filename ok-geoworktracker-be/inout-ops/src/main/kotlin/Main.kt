@@ -6,7 +6,7 @@ fun main() {
     val name = "Kotlin"
     //TIP Наведите курсор на подсвеченный текст и нажмите <shortcut actionId="ShowIntentionActions"/>
     // чтобы увидеть, как GIGA IDE предлагает это исправить.
-    println("Hello, " + name + "!")
+    println("Hello, $name!")
 
     for (i in 1..5) {
         //TIP Нажмите <shortcut actionId="Debug"/> для начала отладки кода. Мы установили одну <icon src="AllIcons.Debugger.Db_set_breakpoint"/> точку останова
