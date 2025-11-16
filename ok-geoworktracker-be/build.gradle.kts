@@ -1,11 +1,10 @@
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
-
 }
 
 group = "ru.otus.otuskotlin.marketplace"
-version = "1.0-SNAPSHOT"
+version = "0.0.1"
 
 allprojects {
     repositories {
@@ -18,10 +17,27 @@ subprojects {
     version = rootProject.version
 }
 
+
+ext {
+    val specDir = layout.projectDirectory.dir("../specs")
+    set("spec-v1", specDir.file("specs-ticket-v1.yaml").toString())
+    set("spec-v2", specDir.file("specs-ticket-v2.yaml").toString())
+    set("spec-log1", specDir.file("specs-ticket-log1.yaml").toString())
+}
+
+
 tasks {
     register("build" ) {
         group = "build"
-        dependsOn(project(":inout-ops").getTasksByName("build",false))
+    }
+    register("clean" ) {
+        group = "build"
+        subprojects.forEach { proj ->
+            println("PROJ $proj")
+            proj.getTasksByName("clean", false).also {
+                this@register.dependsOn(it)
+            }
+        }
     }
     register("check" ) {
         group = "verification"

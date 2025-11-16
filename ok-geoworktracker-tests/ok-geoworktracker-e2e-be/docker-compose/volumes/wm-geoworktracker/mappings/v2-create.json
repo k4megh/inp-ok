@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/v2/ticket/create"
+  },
+
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "responseType": "create",
+      "result": "success",
+      "ticket": {
+        "id": "123",
+        "title": "{{{jsonPath request.body '$.ticket.title'}}}",
+        "description": "Требуется болт 100x5 с шестигранной шляпкой",
+        "ticketType": "{{{jsonPath request.body '$.ticket.ticketType'}}}",
+        "visibility": "public"
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"]
+  }
+}
