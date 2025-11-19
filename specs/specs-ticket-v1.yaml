@@ -1,0 +1,419 @@
+openapi: 3.0.3
+info:
+  title: "Geoworktracker ${VERSION_APP}"
+  description: This is a place where geodesists and Survey Data Processing Specialists interact with each other
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1
+tags:
+  - name: ticket
+    description: Заявка геодезиста на обработку данных (с дальнейшим взятием в работу камеральщиком)
+paths:
+  /ticket/create:
+    post:
+      tags:
+        - ticket
+      summary: Create ticket
+      operationId: ticketCreate
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketCreateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketCreateResponse'
+  /ticket/read:
+    post:
+      tags:
+        - ticket
+      summary: Read ticket
+      operationId: ticketRead
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketReadRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketReadResponse'
+  /ticket/update:
+    post:
+      tags:
+        - ticket
+      summary: Update ticket
+      operationId: ticketUpdate
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketUpdateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketUpdateResponse'
+  /ticket/delete:
+    post:
+      tags:
+        - ticket
+      summary: Delete ticket
+      operationId: ticketDelete
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketDeleteRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDeleteResponse'
+  /ticket/search:
+    post:
+      tags:
+        - ticket
+      summary: Search ticket
+      operationId: ticketSearch
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketSearchRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketSearchResponse'
+
+components:
+  schemas:
+
+    IRequest:
+      type: object
+      description: Базовый интерфейс для всех запросов
+      properties:
+        requestType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/TicketCreateRequest'
+          read:   '#/components/schemas/TicketReadRequest'
+          update: '#/components/schemas/TicketUpdateRequest'
+          delete: '#/components/schemas/TicketDeleteRequest'
+          search: '#/components/schemas/TicketSearchRequest'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        group:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+
+    IResponse:
+      type: object
+      description: Базовый интерфейс для всех ответов
+      properties:
+        responseType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/TicketCreateResponse'
+          read:   '#/components/schemas/TicketReadResponse'
+          update: '#/components/schemas/TicketUpdateResponse'
+          delete: '#/components/schemas/TicketDeleteResponse'
+          search: '#/components/schemas/TicketSearchResponse'
+          init: '#/components/schemas/TicketInitResponse'
+
+
+    UserId:
+      type: string
+      description: Идентификатор пользователя
+    TicketId:
+      type: string
+      description: Идентификатор тикета
+    TicketLock:
+      type: string
+      description: Версия оптимистичной блокировки
+
+    BaseTicket:
+      type: object
+      description: Объект описывает свойства, одинаковые для create и update
+      properties:
+        title:
+          type: string
+          description: Заголовок тикета
+        description:
+          type: string
+          description: Описание тикета
+        ticketType:
+          $ref: '#/components/schemas/ClaimStatus'
+        visibility:
+          $ref: '#/components/schemas/TicketVisibility'
+
+    ClaimStatus:
+      type: string
+      description: 'Состояние заявки (тикета): ждёт, в работе, просрочено, сделано, возвращено*'
+      enum:
+        - wait
+        - inwork
+        - expired
+        - done
+        - returned
+
+    TicketVisibility:
+      type: string
+      description: 'Тип видимости тикета. Возможные значения: видит только владелец, только зарегистрированный в системе пользователь, видимо всем'
+      enum:
+        - ownerOnly
+        - registeredOnly
+        - public
+
+    TicketInitResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+
+    TicketCreateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+
+    TicketCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TicketRequestDebug'
+        - type: object
+          properties:
+            ticket:
+              $ref: '#/components/schemas/TicketCreateObject'
+
+    TicketReadObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TicketId'
+
+    TicketReadRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TicketRequestDebug'
+        - type: object
+          properties:
+            ticket:
+              $ref: '#/components/schemas/TicketReadObject'
+
+    TicketUpdateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TicketId'
+            lock:
+              $ref: '#/components/schemas/TicketLock'
+
+    TicketUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TicketRequestDebug'
+        - type: object
+          properties:
+            ticket:
+              $ref: '#/components/schemas/TicketUpdateObject'
+
+    TicketDeleteObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TicketId'
+            lock:
+              $ref: '#/components/schemas/TicketLock'
+
+    TicketDeleteRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TicketRequestDebug'
+        - type: object
+          properties:
+            ticket:
+              $ref: '#/components/schemas/TicketDeleteObject'
+
+    TicketSearchFilter:
+      type: object
+      description: Набор фильтров для поиска
+      properties:
+        searchString:
+          type: string
+          description: Поисковая строка, которая будет искаться в тикетах
+        ownerId:
+          $ref: '#/components/schemas/UserId'
+        ticketType:
+          $ref: '#/components/schemas/ClaimStatus'
+
+    TicketSearchRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TicketRequestDebug'
+        - type: object
+          properties:
+            ticketFilter:
+              $ref: '#/components/schemas/TicketSearchFilter'
+
+    TicketResponseObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          description: Объект, который возвращается в ответе бэкенда
+          properties:
+            id:
+              $ref: '#/components/schemas/TicketId'
+            ownerId:
+              $ref: '#/components/schemas/UserId'
+            lock:
+              $ref: '#/components/schemas/TicketLock'
+            permissions:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/TicketPermissions'
+
+    TicketPermissions:
+      type: string
+      description: Доступы для клиента для операций над тикетом
+      enum:
+        - read
+        - update
+        - delete
+        - makeVisiblePublic
+        - makeVisibleOwn
+        - makeVisibleGroup
+
+    TicketResponseSingle:
+      allOf:
+        - type: object
+          description: Ответ с одним объектом тикета
+          properties:
+            ticket:
+              $ref: '#/components/schemas/TicketResponseObject'
+
+    TicketResponseMulti:
+      allOf:
+        - type: object
+          description: Список найденных объектов
+          properties:
+            tickets:
+              type: array
+              items:
+                $ref: '#/components/schemas/TicketResponseObject'
+
+    TicketCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TicketResponseSingle'
+
+    TicketReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TicketResponseSingle'
+
+    TicketUpdateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TicketResponseSingle'
+
+    TicketDeleteResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TicketResponseSingle'
+
+    TicketSearchResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TicketResponseMulti'
+
+    # STUBS ======================
+    TicketRequestDebugMode:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
+
+    TicketRequestDebug:
+      type: object
+      properties:
+        debug:
+          $ref: '#/components/schemas/TicketDebug'
+
+    TicketDebug:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/TicketRequestDebugMode'
+        stub:
+          $ref: '#/components/schemas/TicketRequestDebugStubs'
+
+    TicketRequestDebugStubs:
+      type: string
+      description: Перечисления всех стабов
+      enum:
+        - success
+        - notFound
+        - badId
+        - badTitle
+        - badDescription
+        - badVisibility
+        - cannotDelete
+        - badSearchString

@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/v2/ticket/read"
+  },
+
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "responseType": "read",
+      "result": "success",
+      "ticket": {
+        "id": "{{{jsonPath request.body '$.ticket.id'}}}",
+        "title": "Требуется болт",
+        "description": "Требуется болт 100x5 с шестигранной шляпкой",
+        "ticketType": "wait",
+        "visibility": "public"
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": ["response-template"]
+  }
+}

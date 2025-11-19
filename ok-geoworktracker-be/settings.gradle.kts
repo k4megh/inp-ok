@@ -1,3 +1,4 @@
+rootProject.name = "ok-geoworktracker-be"
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -9,17 +10,11 @@ dependencyResolutionManagement {
 
 
 pluginManagement {
-    val foojayResolverConventionVersion:String by settings
-
-    plugins {
-        id("org.gradle.toolchains.foojay-resolver-convention") version foojayResolverConventionVersion
-    }
-
-
     includeBuild("../build-plugin")
     plugins {
         id("build-jvm") apply false
         id("build-kmp") apply false
+        id("build-docker") apply false
     }
     repositories {
         mavenCentral()
@@ -29,5 +24,12 @@ pluginManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "ok-geoworktracker-be"
-include("inout-ops")
+
+
+include(":ok-geoworktracker-api-v1-jackson")
+include(":ok-geoworktracker-api-v1-mappers")
+include(":ok-geoworktracker-api-v2-kmp")
+include(":ok-geoworktracker-api-log1")
+include(":ok-geoworktracker-common")
+include(":ok-geoworktracker-stubs")
+include(":ok-geoworktracker-app-tmp")

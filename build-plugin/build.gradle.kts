@@ -19,6 +19,7 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
     // enable Ktlint formatting
 //    add("detektPlugins", libs.plugin.detektFormatting)
@@ -29,4 +30,20 @@ dependencies {
 //    implementation(libs.plugin.dokka)
     implementation(libs.plugin.binaryCompatibilityValidator)
 //    implementation(libs.plugin.mavenPublish)
+}
+
+tasks.register<DefaultTask>("dependencyReport") {
+    doLast {
+        configurations.all {confit->
+            if (confit.isCanBeResolved) {
+                println("Configuration: ${confit.name}")
+                //.resolvedDependencies.get()
+                confit.dependencies.forEach { dep ->
+                    //.module.group}:${dep.module.name}:${dep.module.version}")
+                    println(" - ${dep.name}:${dep.version}")
+                }
+            }
+            true
+        }
+    }
 }
