@@ -11,6 +11,8 @@ fun GwtrContext.toTransportTicket(): IResponse = when (val cmd = command) {
     GwtrCommand.UPDATE -> toTransportUpdate()
     GwtrCommand.DELETE -> toTransportDelete()
     GwtrCommand.SEARCH -> toTransportSearch()
+    GwtrCommand.INIT -> toTransportInit()
+    GwtrCommand.FINISH -> throw UnknownGwtrCommand(cmd)
     GwtrCommand.NONE -> throw UnknownGwtrCommand(cmd)
 }
 
@@ -43,7 +45,10 @@ fun GwtrContext.toTransportSearch() = TicketSearchResponse(
     errors = errors.toTransportErrors(),
     tickets = ticketsResponse.toTransportTicket()
 )
-
+fun GwtrContext.toTransportInit() = TicketInitResponse(
+    result = state.toResult(),
+    errors = errors.toTransportErrors(),
+)
 
 fun List<GwtrTicket>.toTransportTicket(): List<TicketResponseObject>? = this
     .map { it.toTransportTicket() }

@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
 }
 
-group = "com.otus.otuskotlin.marketplace"
+group = "ru.otus.otuskotlin.marketplace"
 version = "0.0.1"
 
 repositories {
@@ -23,27 +23,9 @@ subprojects {
 
 
 tasks {
-    register("clean") {
-        group = "build"
-        gradle.includedBuilds.forEach {
-            dependsOn(it.task(":clean"))
-        }
-
-    }
-
-    val buildImages = register("buildImages") {
-        dependsOn(gradle.includedBuild("ok-geoworktracker-be").task(":buildImages"))
-    }
-
-    val e2eTests = register("e2eTests") {
-        dependsOn(buildImages)
-        dependsOn(gradle.includedBuild("ok-geoworktracker-tests").task(":e2eTests"))
-        mustRunAfter(buildImages)
-    }
-
-    register("check" ) {
+    register("check") {
         group = "verification"
-        dependsOn(gradle.includedBuild("ok-geoworktracker-be").task(":check"))
-        dependsOn(e2eTests)
+        dependsOn(gradle.includedBuild("ok-marketplace-be").task(":check"))
     }
+
 }

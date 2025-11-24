@@ -10,7 +10,6 @@ import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
-import kotlin.use
 
 class SocketLoggerTest {
     @OptIn(ExperimentalStdlibApi::class)
