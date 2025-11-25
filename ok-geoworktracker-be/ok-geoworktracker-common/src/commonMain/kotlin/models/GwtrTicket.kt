@@ -11,6 +11,10 @@ data class GwtrTicket(
     var lock: GwtrTicketLock = GwtrTicketLock.NONE,
     val permissionsClient: MutableSet<GwtrTicketPermissionClient> = mutableSetOf()
 ) {
+    fun deepCopy(): GwtrTicket = copy(
+        permissionsClient = permissionsClient.toMutableSet(),
+    )
+
     fun isEmpty() = this == NONE
 
     companion object {
