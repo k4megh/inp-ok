@@ -7,4 +7,6 @@ enum class GwtrCommand {
     UPDATE,
     DELETE,
     SEARCH,
+    INIT,
+    FINISH,
 }

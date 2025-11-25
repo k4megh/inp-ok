@@ -1,17 +1,6 @@
 plugins {
     id("build-kmp")
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.ktor)
- }
-// Отключаем требование mainClass
-if (project.hasProperty("application")) {
-    application {
-        mainClass.set("")
-    }
-}
-
-repositories {
-    mavenCentral()
 }
 
 kotlin {

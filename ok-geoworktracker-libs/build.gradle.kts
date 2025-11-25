@@ -21,12 +21,12 @@ subprojects {
 }
 
 group = "ru.otus.otuskotlin.marketplace.libs"
-version = "1.0-SNAPSHOT"
+version = "0.0.1"
 
 ext {
     val specDir = layout.projectDirectory.dir("../specs")
-    set("spec-v1", specDir.file("specs-ad-v1.yaml").toString())
-    set("spec-v2", specDir.file("specs-ad-v2.yaml").toString())
+    set("spec-v1", specDir.file("specs-ticket-v1.yaml").toString())
+    set("spec-v2", specDir.file("specs-ticket-v2.yaml").toString())
 }
 
 tasks {

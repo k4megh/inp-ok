@@ -30,6 +30,6 @@ include(":ok-geoworktracker-lib-logging-common")
 include(":ok-geoworktracker-lib-logging-kermit")
 include(":ok-geoworktracker-lib-logging-logback")
 include(":ok-geoworktracker-lib-logging-socket")
-
+include(":ok-geoworktracker-lib-cor")
 
 

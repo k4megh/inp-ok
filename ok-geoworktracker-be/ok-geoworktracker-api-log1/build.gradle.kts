@@ -20,8 +20,8 @@ kotlin {
                 implementation(libs.coroutines.core)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.gwtr.logs.common)
                 implementation(project(":ok-geoworktracker-common"))
+                implementation(libs.gwtr.logs.common)
              }
         }
         val commonTest by getting {

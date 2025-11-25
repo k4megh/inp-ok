@@ -48,4 +48,8 @@ tasks {
             }
         }
     }
+    register("buildImages") {
+        dependsOn(project("ok-geoworktracker-app-ktor").tasks.getByName("publishImageToLocalRegistry"))
+        dependsOn(project("ok-geoworktracker-app-ktor").tasks.getByName("dockerBuildX64Image"))
+    }
 }
