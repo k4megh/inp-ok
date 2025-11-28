@@ -16,14 +16,18 @@ data class GwtrContext(
     var stubCase: GwtrStubs = GwtrStubs.NONE,
     var wsSession: IGwtrWsSession = IGwtrWsSession.NONE,
 
-
-    
     var requestId: GwtrRequestId = GwtrRequestId.NONE,
     var timeStart: Instant = Instant.NONE,
     var ticketRequest: GwtrTicket = GwtrTicket(),
     var ticketFilterRequest: GwtrTicketFilter = GwtrTicketFilter(),
+ 
+    var ticketValidating: GwtrTicket = GwtrTicket(),
+    var ticketFilterValidating: GwtrTicketFilter = GwtrTicketFilter(),
+
+    var ticketValidated: GwtrTicket = GwtrTicket(),
+    var ticketFilterValidated: GwtrTicketFilter = GwtrTicketFilter(),
 
     var ticketResponse: GwtrTicket = GwtrTicket(),
     var ticketsResponse: MutableList<GwtrTicket> = mutableListOf(),
-    
+ 
     )
