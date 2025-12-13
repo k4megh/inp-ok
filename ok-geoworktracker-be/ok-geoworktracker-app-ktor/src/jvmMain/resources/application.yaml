@@ -40,3 +40,13 @@ ktor:
 #    queue: gwtr-tickets-v1-queue
 #    consumerTag: "gwtr-tickets-v1-consumer"
 #    exchangeType: direct
+geoworktracker:
+  repository:
+    test: "inmemory"
+    prod: "$DB_TYPE_PROD:inmemory"
+    cassandra:
+      keyspace: "$GWTRTICKETS_KEYSPACE:geoworktracker-tickets"
+      host: "$GWTRTICKETS_HOST:localhost"
+      port: "$GWTRTICKETS_PORT:9042"
+      user: "$GWTRTICKETS_USER:cassandra"
+      pass: "$GWTRTICKETS_PASS:cassandra"

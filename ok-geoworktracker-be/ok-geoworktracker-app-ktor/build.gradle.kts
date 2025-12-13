@@ -1,37 +1,42 @@
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import io.ktor.plugin.features.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
+
 
 plugins {
     alias(libs.plugins.kotlinx.serialization)
     id("build-kmp")
 //    id("io.ktor.plugin")
     alias(libs.plugins.ktor)
-    alias(libs.plugins.muschko.remote)
-}
+    //alias(libs.plugins.muschko.remote)
+    id("build-docker")
+ }
 
 application {
     mainClass.set("io.ktor.server.cio.EngineMain")
 }
 
-ktor {
-    configureNativeImage(project)
-    docker {
-        localImageName.set(project.name)
-        imageTag.set(project.version.toString())
-        jreVersion.set(JavaVersion.VERSION_21)
-    }
-}
+//ktor {
+//    configureNativeImage(project)
+//    docker {
+//        localImageName.set("${project.name}-jvm")
+//        imageTag.set(project.version.toString())
+//        jreVersion.set(JavaVersion.toVersion(libs.versions.jvm.language.get()))
+//    }
+//}
 
 jib {
     container.mainClass = application.mainClass.get()
 }
+docker {
+    buildContext = project.layout.buildDirectory.dir("docker-x64").get().toString()
+    imageName = "${project.name}-x64"
+    dockerFile = "Dockerfile"
+    imageTag = "${project.version}"
+}
 
 kotlin {
     // !!! Обязательно. Иначе не проходит сборка толстых джанриков в shadowJar
-    jvm { }
+    jvm {withJava()}
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
         binaries {
             executable {
@@ -41,6 +46,11 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings {
+                optIn("kotlin.RequiresOptIn")
+            }
+        }
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
@@ -76,6 +86,17 @@ kotlin {
                 implementation("ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-common")
                 implementation("ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-kermit")
                 implementation(libs.gwtr.logs.socket)
+                
+                // DB
+                implementation(libs.uuid)
+                implementation(projects.okGeoworktrackerRepoCommon)
+                implementation(projects.okGeoworktrackerRepoStubs)
+                implementation(projects.okGeoworktrackerRepoInmemory)
+
+                // States
+                implementation(libs.gwtr.state.common)
+                implementation(libs.gwtr.state.biz)
+
             }
         }
 
@@ -102,17 +123,25 @@ kotlin {
                 implementation(libs.logback)
 
                 // transport models
-                implementation(project(":ok-geoworktracker-api-v1-jackson"))
-                implementation(project(":ok-geoworktracker-api-v1-mappers"))
+                implementation(projects.okGeoworktrackerApiV1Jackson)
+                implementation(projects.okGeoworktrackerApiV1Mappers)
+                implementation(projects.okGeoworktrackerApiV2Kmp)
 
                 implementation("ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-logback")
-
+                implementation(projects.okGeoworktrackerRepoCassandra)
+ 
             }
         }
 
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit"))
+                implementation(libs.testcontainers.core)
+                implementation(libs.logback)
+                implementation(kotlin("test"))
+                //implementation("org.testcontainers:testcontainers:1.19.5")
+                implementation("org.testcontainers:junit-jupiter:1.19.5")
+                //implementation("ch.qos.logback:logback-classic:1.4.11")
             }
         }
     }
@@ -121,6 +150,12 @@ kotlin {
 tasks {
     shadowJar {
         isZip64 = true
+    }
+    distTar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    distZip {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     // Если ошибка: "Entry application.yaml is a duplicate but no duplicate handling strategy has been set."
@@ -132,46 +167,26 @@ tasks {
     val linkReleaseExecutableLinuxX64 by getting(KotlinNativeLink::class)
     val nativeFileX64 = linkReleaseExecutableLinuxX64.binary.outputFile
     val linuxX64ProcessResources by getting(ProcessResources::class)
-
-    val dockerDockerfileX64 by registering(Dockerfile::class) {
+    dockerBuild {
         dependsOn(linkReleaseExecutableLinuxX64)
         dependsOn(linuxX64ProcessResources)
         group = "docker"
-        from(Dockerfile.From("ubuntu:22.04").withPlatform("linux/amd64"))
         doFirst {
             copy {
+                from("Dockerfile") //.rename { "Dockerfile" }
                 from(nativeFileX64)
                 from(linuxX64ProcessResources.destinationDir)
-                into("${this@registering.destDir.get()}")
+                println("BUILD CONTEXT: ${buildContext.get()}")
+                into(buildContext)
             }
         }
-        copyFile(nativeFileX64.name, "/app/")
-        copyFile("application.yaml", "/app/")
-        exposePort(8080)
-        workingDir("/app")
-        entryPoint("/app/${nativeFileX64.name}", "-config=./application.yaml")
     }
-    val registryUser: String? = System.getenv("CONTAINER_REGISTRY_USER")
-    val registryPass: String? = System.getenv("CONTAINER_REGISTRY_PASS")
-    val registryHost: String? = System.getenv("CONTAINER_REGISTRY_HOST")
-    val registryPref: String? = System.getenv("CONTAINER_REGISTRY_PREF")
-    val imageName = registryPref?.let { "$it/${project.name}" } ?: project.name
-
-    val dockerBuildX64Image by registering(DockerBuildImage::class) {
-        group = "docker"
-        dependsOn(dockerDockerfileX64)
-        images.add("$imageName-x64:${rootProject.version}")
-        images.add("$imageName-x64:latest")
-        platform.set("linux/amd64")
-    }
-    val dockerPushX64Image by registering(DockerPushImage::class) {
-        group = "docker"
-        dependsOn(dockerBuildX64Image)
-        images.set(dockerBuildX64Image.get().images)
-        registryCredentials {
-            username.set(registryUser)
-            password.set(registryPass)
-            url.set("https://$registryHost/v1/")
-        }
+}
+ktor {
+    configureNativeImage(project)
+    docker {
+        localImageName.set("${project.name}-jvm")
+        imageTag.set(project.version.toString())
+        jreVersion.set(JavaVersion.toVersion(libs.versions.jvm.language.get()))
     }
 }

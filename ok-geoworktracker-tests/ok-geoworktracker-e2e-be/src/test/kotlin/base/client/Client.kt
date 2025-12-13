@@ -7,7 +7,7 @@ package ru.otus.otuskotlin.marketplace.e2e.be.base.client
 interface Client {
     /**
      * @param version версия АПИ (v1)
-     * @param path путь к ресурсу, имя топика и т.п. (ad/create)
+     * @param path путь к ресурсу, имя топика и т.п. (ticket/create)
      * @param request тело сообщения в виде строки
      * @return тело ответа
      */

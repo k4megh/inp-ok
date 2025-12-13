@@ -37,3 +37,11 @@ include(":ok-geoworktracker-biz")
 
 include(":ok-geoworktracker-app-common")
 include(":ok-geoworktracker-app-ktor")
+include(":ok-geoworktracker-stubs")
+
+// DB
+include(":ok-geoworktracker-repo-common")
+include(":ok-geoworktracker-repo-inmemory")
+include(":ok-geoworktracker-repo-stubs")
+include(":ok-geoworktracker-repo-tests")
+include(":ok-geoworktracker-repo-cassandra")

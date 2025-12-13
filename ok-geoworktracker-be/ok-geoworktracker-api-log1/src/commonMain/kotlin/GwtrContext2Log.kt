@@ -27,7 +27,7 @@ private fun GwtrContext.toGwtrLog(): GwtrLogModel? {
 private fun GwtrTicketFilter.toLog() = TicketFilterLog(
     searchString = searchString.takeIf { it.isNotBlank() },
     ownerId = ownerId.takeIf { it != GwtrUserId.NONE }?.asString(),
-    claimStatus = ClaimStatus.takeIf { it != GwtrClaimStatus.NONE }?.name,
+    claimStatus = claimStatus.takeIf { it != GwtrClaimStatus.NONE }?.name,
 )
 
 private fun GwtrError.toLog() = ErrorLogModel(

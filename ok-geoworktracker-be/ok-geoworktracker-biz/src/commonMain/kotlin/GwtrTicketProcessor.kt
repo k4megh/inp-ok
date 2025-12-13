@@ -1,8 +1,11 @@
 package ru.otus.otuskotlin.marketplace.biz
 
+import ru.otus.otuskotlin.marketplace.biz.general.getTicketState
+import ru.otus.otuskotlin.marketplace.biz.general.getTicketStates
 import ru.otus.otuskotlin.marketplace.biz.general.initStatus
 import ru.otus.otuskotlin.marketplace.biz.general.operation
 import ru.otus.otuskotlin.marketplace.biz.general.stubs
+import ru.otus.otuskotlin.marketplace.biz.repo.*
 import ru.otus.otuskotlin.marketplace.biz.stubs.*
 import ru.otus.otuskotlin.marketplace.biz.validation.*
 import ru.otus.otuskotlin.marketplace.common.GwtrContext
@@ -10,6 +13,8 @@ import ru.otus.otuskotlin.marketplace.common.GwtrCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.GwtrCommand
 import ru.otus.otuskotlin.marketplace.common.models.GwtrTicketId
 import ru.otus.otuskotlin.marketplace.common.models.GwtrTicketLock
+import ru.otus.otuskotlin.marketplace.common.models.GwtrState
+import ru.otus.otuskotlin.marketplace.cor.chain
 import ru.otus.otuskotlin.marketplace.cor.rootChain
 import ru.otus.otuskotlin.marketplace.cor.worker
 
@@ -42,6 +47,15 @@ class GwtrTicketProcessor(
                 finishTicketValidation("Завершение проверок")
             }
 
+            chain {
+                title = "Логика сохранения"
+                repoPrepareCreate("Подготовка объекта для сохранения")
+                //accessValidation("Вычисление прав доступа")
+                repoCreate("Создание объявления в БД")
+            }
+            //frontPermissions("Вычисление пользовательских разрешений для фронтенда")
+            getTicketState("Вычисление состояния объявления")
+            prepareResult("Подготовка ответа")
         }
         operation("Получить тикет", GwtrCommand.READ) {
             stubs("Обработка стабов") {
@@ -58,6 +72,19 @@ class GwtrTicketProcessor(
 
                 finishTicketValidation("Успешное завершение процедуры валидации")
             }
+            chain {
+                title = "Логика чтения"
+                repoRead("Чтение объявления из БД")
+                //accessValidation("Вычисление прав доступа")
+                worker {
+                    title = "Подготовка ответа для Read"
+                    on { state == GwtrState.RUNNING }
+                    handle { ticketRepoDone = ticketRepoRead }
+                }
+            }
+            //frontPermissions("Вычисление пользовательских разрешений для фронтенда")
+            getTicketState("Вычисление состояния объявления")
+            prepareResult("Подготовка ответа")
         }
         operation("Изменить тикет", GwtrCommand.UPDATE) {
             stubs("Обработка стабов") {
@@ -85,6 +112,17 @@ class GwtrTicketProcessor(
 
                 finishTicketValidation("Успешное завершение процедуры валидации")
             }
+            chain {
+                title = "Логика сохранения"
+                repoRead("Чтение тикета из БД")
+                //accessValidation("Вычисление прав доступа")
+                checkLock("Проверяем консистентность по оптимистичной блокировке")
+                repoPrepareUpdate("Подготовка объекта для обновления")
+                repoUpdate("Обновление тикета в БД")
+            }
+            //frontPermissions("Вычисление пользовательских разрешений для фронтенда")
+            getTicketState("Вычисление состояния объявления")
+            prepareResult("Подготовка ответа")
         }
         operation("Удалить тикет", GwtrCommand.DELETE) {
             stubs("Обработка стабов") {
@@ -105,6 +143,17 @@ class GwtrTicketProcessor(
                 validateLockProperFormat("Проверка формата lock")
                 finishTicketValidation("Успешное завершение процедуры валидации")
             }
+            chain {
+                title = "Логика удаления"
+                repoRead("Чтение тикета из БД")
+                //accessValidation("Вычисление прав доступа")
+                checkLock("Проверяем консистентность по оптимистичной блокировке")
+                repoPrepareDelete("Подготовка объекта для удаления")
+                repoDelete("Удаление тикета из БД")
+            }
+            //frontPermissions("Вычисление пользовательских разрешений для фронтенда")
+            getTicketState("Вычисление состояния объявления")
+            prepareResult("Подготовка ответа")
         }
         operation("Поиск тикетов", GwtrCommand.SEARCH) {
             stubs("Обработка стабов") {
@@ -119,6 +168,12 @@ class GwtrTicketProcessor(
 
                 finishTicketFilterValidation("Успешное завершение процедуры валидации")
             }
+            //searchTypes("Подготовка поискового запроса")
+
+            repoSearch("Поиск объявления в БД по фильтру")
+            //frontPermissions("Вычисление пользовательских разрешений для фронтенда")
+            getTicketStates("Вычисление состояния тикета")
+            prepareResult("Подготовка ответа")
         }
     }.build()
 }
