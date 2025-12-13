@@ -10,8 +10,10 @@ dependencies {
     implementation("ru.otus.otuskotlin.marketplace:ok-geoworktracker-api-v2-kmp")
     implementation("ru.otus.otuskotlin.marketplace:ok-geoworktracker-stubs")
 
+
     testImplementation(kotlin("test-junit5"))
 
+    testImplementation(libs.logback.appenders)
     testImplementation(libs.logback)
     testImplementation(libs.kermit)
 
@@ -29,6 +31,5 @@ var severity: String = "MINOR"
 tasks {
     withType<Test>().configureEach {
         useJUnitPlatform()
-//        dependsOn(gradle.includedBuild(":ok-geoworktracker-app-ktor").task("publishImageToLocalRegistry"))
     }
 }

@@ -10,8 +10,33 @@ ktor:
     - resources
   application:
 #    Это важно для корректного тестирования
-    modules: []
-#  urls:
-#    - "http://127.0.0.1:8080/v1"
-#    - "http://0.0.0.0:8080/v1"
-#    - "http://192.168.0.182:8080/v1"
+    modules:
+      - "ru.otus.otuskotlin.marketplace.app.ktor.ApplicationJvm.kt"
+  #  urls:
+  #    - "http://127.0.0.1:8080/v1"
+  #    - "http://0.0.0.0:8080/v1"
+  #    - "http://192.168.0.182:8080/v1"
+  logger: kmp
+#  # Логирование типа socket требует установки в fluent-bit.conf
+#  # [INPUT]
+#  # Name    TCP # Вот здесь нужно поменять!
+#  # Listen  0.0.0.0
+#  # Port    24224
+#  logger: socket
+#  socketLogger:
+#    port: 24224
+
+geoworktracker:
+  repository:
+    test: "inmemory"
+    prod: "$DB_TYPE_PROD:inmemory"
+
+
+    cassandra:
+      hosts: localhost
+      #keyspace: test_keyspace
+      keyspace: geoworktracker
+      pass: cassandra
+      port: 9042
+      user: cassandra
+

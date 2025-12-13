@@ -17,4 +17,6 @@ rootProject.name = "inp-ok"
 
 includeBuild("ok-geoworktracker-be")
 includeBuild("ok-geoworktracker-tests")
+includeBuild("ok-geoworktracker-states")
+includeBuild("ok-geoworktracker-other")
 includeBuild("ok-geoworktracker-libs")

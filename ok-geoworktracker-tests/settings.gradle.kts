@@ -1,5 +1,6 @@
 rootProject.name = "ok-geoworktracker-tests"
 
+
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {

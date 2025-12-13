@@ -4,7 +4,7 @@ gwtr = "0.0.1"
 
 kotlinx-datetime = "0.6.2"
 kotlinx-serialization = "1.6.3"
-coroutines = "1.9.0"
+coroutines = "1.7.3"  #"1.9.0"
 
 binaryCompabilityValidator = "0.13.2"
 
@@ -17,16 +17,21 @@ kermit = "2.0.3"
 
 #Frameworks
 ktor = "2.3.12"
-spring-boot = "3.2.0"
+
+liquibase = "4.27.0"
+exposed = "0.50.0"
+
+cassandra = "4.17.0"
 
 # Docker
 muschko = "9.4.0"
 
 #Testing
-testcontainers = "1.19.7"
+testcontainers = "1.19.5"
 
 # BASE
-jvm-compiler = "17"
+#jvm-compiler = "17"
+jvm-compiler = "21"
 jvm-language = "21"
 
 [libraries]
@@ -38,10 +43,14 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.25.0" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
+#coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+#coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.7.3" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version = "1.7.3" }
+
+
 coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "coroutines" }
+coroutines-jdk9 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9", version.ref = "coroutines" }
 cor = { module = "ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-cor" }
 uuid = "com.benasher44:uuid:0.8.4"
 
@@ -75,6 +84,18 @@ ktor-server-calllogging = { module = "io.ktor:ktor-server-call-logging", version
 ktor-server-websocket = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktor-server-test = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 
+# Databases
+db-cache4k = "io.github.reactivecircus.cache4k:cache4k:0.13.0"
+db-hikari = "com.zaxxer:HikariCP:5.1.0"
+db-exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+db-exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+db-exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+
+db-cassandra-core = { module = "com.datastax.oss:java-driver-core", version.ref = "cassandra" }
+db-cassandra-qbuilder = { module = "com.datastax.oss:java-driver-query-builder", version.ref = "cassandra" }
+db-cassandra-kapt = { module = "com.datastax.oss:java-driver-mapper-processor", version.ref = "cassandra" }
+db-cassandra-mapper = { module = "com.datastax.oss:java-driver-mapper-runtime", version.ref = "cassandra" }
+
 
 # Testing
 kotest-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
@@ -83,14 +104,21 @@ kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest"
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version = "5.2.1" }
 
 testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-cassandra = { module = "org.testcontainers:cassandra", version.ref = "testcontainers" }
 
 gwtr-logs-common = { module = "ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-common", version.ref = "gwtr" }
 gwtr-logs-kermit = { module = "ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-kermit", version.ref = "gwtr" }
 gwtr-logs-logback = { module = "ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-logback", version.ref = "gwtr" }
 gwtr-logs-socket = { module = "ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-socket", version.ref = "gwtr" }
+gwtr-cor = { module = "ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-cor", version.ref = "gwtr" }
+gwtr-state-common = { module = "ru.otus.otuskotlin.marketplace.state:ok-geoworktracker-states-common", version.ref = "gwtr" }
+gwtr-state-biz = { module = "ru.otus.otuskotlin.marketplace.state:ok-geoworktracker-states-biz", version.ref = "gwtr" }
+
 
 [bundles]
 kotest = ["kotest-junit5", "kotest-core", "kotest-property"]
+exposed = ["db-exposed-core", "db-exposed-dao", "db-exposed-jdbc"]
+cassandra = ["db-cassandra-core", "db-cassandra-mapper", "db-cassandra-qbuilder"]
 
 
 [plugins]
@@ -99,6 +127,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
 crowdproj-generator = { id = "com.crowdproj.generator", version = "0.3.0" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 shadowJar = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 
 # Ktor

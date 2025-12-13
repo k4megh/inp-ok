@@ -13,6 +13,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
                 api("ru.otus.otuskotlin.marketplace.libs:ok-geoworktracker-lib-logging-common")
+                api(libs.gwtr.state.common)
             }
         }
         commonTest {

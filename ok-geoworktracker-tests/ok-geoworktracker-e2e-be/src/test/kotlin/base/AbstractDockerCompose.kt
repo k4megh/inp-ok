@@ -13,7 +13,7 @@ private val log = Logger
 /**
  * apps - список приложений в docker-compose. Первое приложение - "главное", его url возвращается как inputUrl
  * (например ваш сервис при работе по rest или брокер сообщений при работе с брокером)
- * dockerComposeNames - имена docker-compose файлов (относительно ok-marketplace-acceptance/docker-compose)
+ * dockerComposeNames - имена docker-compose файлов (относительно ok-geoworktracker-acceptance/docker-compose)
  */
 abstract class AbstractDockerCompose(
     private val apps: List<AppInfo>,
@@ -27,8 +27,8 @@ abstract class AbstractDockerCompose(
         listOf(AppInfo(service, port)),
         dockerComposeName.toList()
     )
-    private val LOGGER = org.slf4j.LoggerFactory.getLogger(ComposeContainer::class.java)
-    private val logConsumer = Slf4jLogConsumer(LOGGER)
+    private val cLOGGER = org.slf4j.LoggerFactory.getLogger(ComposeContainer::class.java)
+    private val logConsumer = Slf4jLogConsumer(cLOGGER)
     private fun getComposeFiles(): List<File> = dockerComposeNames.map {
         val file = File("docker-compose/$it")
         if (!file.exists()) throw IllegalArgumentException("file $it not found!")
@@ -40,8 +40,12 @@ abstract class AbstractDockerCompose(
             apps.forEach { (service, port) ->
                 withExposedService(service, port)
                 withLogConsumer(service, logConsumer)
-                withStartupTimeout(Duration.ofSeconds(600))
-                waitingFor(service, Wait.forHealthcheck())
+                //Ильин withStartupTimeout(Duration.ofSeconds(600))
+                //Ильин waitingFor(service, Wait.forHealthcheck())
+                withEnv("CASSANDRA_BROADCAST_ADDRESS", "localhost")
+                waitingFor(service, Wait.forLogMessage(".*Listening for CQL clients on.*", 1)
+                    .withStartupTimeout(Duration.ofSeconds(600))
+                )
             }
         }
     }
